@@ -1,37 +1,46 @@
 """
 Author: Talya Gross
-SERVER
+CodeSecurity SERVER
 """
 # import
 import os
+import ssl
 import socket
 import subprocess
 import threading
 import time
+import logging
+
 BUF = 16000
-FAKE_DATA = '{\n  "image": "user: Admin , password: pass1234!"\n}' # the data we reacive if we mangaed to accces the local server
-SQL_INJECTION = "name=talya&pass=' or 1=1;--"
-SSRF_URL = "url=http://172.17.0.2:1000/admin"
+FAKE_DATA = '{\n  "image": "user: Admin , password: pass1234!"\n}'  # the data we reacive if we mangaed to accces the local server
+SQL_INJECTION = "name=talya&pass=' or 1=1;--"  # the data that is sent to the server to try sql injection attack
+SSRF_URL = "url=http://172.17.0.5:1000/admin"  # the data that is sent to the server to try ssrf attack
+CERT_FILE = 'certificate.crt'  # the certificate file for SSL
+KEY_FILE = 'privateKey.key'  # the key file for SSL
 
 
 class Server:
     """
-        build function of the Client class.
+        build function of the Server class.
+        create ssl layer , create a socket, binding it and listen for clients
     """
     def __init__(self, port):
+        logging.basicConfig(filename="fileDB.log", filemode="a", level=logging.DEBUG)
+        # SSL
+        self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        self.context.load_cert_chain(CERT_FILE, KEY_FILE)
+        # socket
         self.sock = socket.socket()
         self.sock.bind(("0.0.0.0", port))
         self.sock.listen()
         print("server is up")
-
         """
         ALL CLIENTS:
         ('127.0.0.1', 49944): socket
         ('127.0.0.1', 49942): socket
-
         """
         self.all_clients = {}
-        self.port = 1001
+        self.port = 1001  # starting port for the dockers
 
     def wait_for_clients(self):
         """
@@ -39,6 +48,7 @@ class Server:
         """
         try:
             while True:
+                self.sock = self.context.wrap_socket(self.sock, server_side=True)
                 client_socket, client_address = self.sock.accept()
                 self.all_clients[client_address] = client_socket
                 print("all clients:")
@@ -59,7 +69,7 @@ class Server:
         """
             the function receives data from the current client and checks what the data is and acts according
             to the protocol of the program.
-        :param client_address: the address of the current client that is being handled
+        param: client_address: the address of the current client that is being handled
         """
         client_socket = self.all_clients[client_address]
         try:
@@ -67,47 +77,57 @@ class Server:
                 print("listening to client:", client_address)
                 data = client_socket.recv(1024).decode() # rcv req and param and the length
                 print(f"data:{data}")
-                data = data.split("\r\n")
-                req = data[0] # sql or ssrf
-                parm = data[1] # none or what the server returns when the condition is true
-                length = int(data[2])  # the length of the file
-                code_path  = data[3] # code path inside the project
-                data = b''
-                print("check")
-                # receiving the file data from the client
-                while True:
-                    chunk = client_socket.recv(BUF)
-                    length -= len(chunk)
-                    data += chunk
-                    if length < BUF:
-                        chunk = client_socket.recv(length)
-                        data += chunk
-                        break
-                # Write the data to a zip file
-                with open('code_files.zip', 'wb') as f:
-                    f.write(data)
-
-                print(f"req: {req}, parm: {parm}, files:{data}")
-                if req == "ssrf":
-                    result = self.check("pfp", code_path, FAKE_DATA, client_address, SSRF_URL)  # retruns True- (yes) or False(no)
-                elif req == "sql":
-                    result = self.check("input", code_path, parm, client_address, SQL_INJECTION) # retruns True- (yes) or False(no)
-                else:
-                    #TODO: request is unvalid
-                    pass
+                if data == "exit":
+                    print("exiting..")
                     break
-                self.port += 1  # changing the port so it wont be the same in the next docker
-                print(f"res: {result}")
-                client_socket.send(result.encode())
-                print("check")
+                elif data:
+                    data = data.split("\r\n")
+                    req = data[0] # sql or ssrf
+                    parm = data[1] # none or what the server returns when the condition is true
+                    length = int(data[2])  # the length of the file
+                    code_path = data[3] # code path inside the project
+                    data = b''
+                    print("check")
+                    # receiving the file data from the client
+                    while True:
+                        chunk = client_socket.recv(BUF)
+                        length -= len(chunk)
+                        data += chunk
+                        if length < BUF:
+                            chunk = client_socket.recv(length)
+                            data += chunk
+                            break
+                    # Write the data to a zip file
+                    with open('code_files.zip', 'wb') as f:
+                        f.write(data)
+
+                    logging.info(f"req: {req}, parm: {parm}")
+                    # print(f"req: {req}, parm: {parm}, files:{data}")
+                    result= ''
+                    if req == "ssrf":
+                        result = self.check("pfp", code_path, FAKE_DATA, client_address, SSRF_URL)  # retruns True- (yes) or False(no)
+                    elif req == "sql":
+                        result = self.check("input", code_path, parm, client_address, SQL_INJECTION) # retruns True- (yes) or False(no)
+                    self.port += 1  # changing the port so it wont be the same in the next docker
+                    logging.info(f"result: {result}")
+                    # print(f"result: {result}")
+                    client_socket.send(result.encode())
         except socket.error as err:
             print('received socket exception - ' + str(err))
         finally:
+            del self.all_clients[client_address]
+            print(self.all_clients)
             client_socket.close()
+            print("exit")
 
     def check(self, url_path, code_path, condition, addr, data):
         """
         send to the docker the code file, the request and the params
+        :param url_path: the url path
+        :param code_path:
+        :param condition:
+        :param addr:
+        :param data:
         :return:
         """
         try:
@@ -131,7 +151,8 @@ class Server:
             process = subprocess.Popen(curl_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             answer = stdout.decode()
-            print(f"answer:{answer.strip()}, condition:{condition}")
+            logging.info(f"url: {url}, data:{data} , answer:{answer.strip()}, condition:{condition}")
+            # print(f"answer:{answer.strip()}, condition:{condition}")
             if condition == answer.strip():
                 # the attack succeeded!
                 return "yes"
@@ -140,10 +161,10 @@ class Server:
         except Exception as err:
             print(err)
         finally:
-            # removing the docker
-            # docker_id = subprocess.check_output(f'docker ps --filter "ancestor={addr[1]}" --format "{{{{.ID}}}}"').strip().decode()
-            # os.system(f"docker rm {docker_id} -f")
             pass
+            # removing the docker
+            docker_id = subprocess.check_output(f'docker ps --filter "ancestor={addr[1]}" --format "{{{{.ID}}}}"').strip().decode()
+            os.system(f"docker rm {docker_id} -f")
 
 
 def main():
