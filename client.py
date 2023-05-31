@@ -7,6 +7,7 @@ from os.path import exists
 
 from gui import *
 import socket
+import ssl
 BUF = 16000
 
 
@@ -15,9 +16,16 @@ class Client:
         build function of the Client class.
     """
     def __init__(self, port, ip):
+        self.ip = ip
+        self.port = port
+        # create the ssl context
+        self.context = ssl.create_default_context()
+        # allow self signed certificate
+        self.context.check_hostname = False
+        self.context.verify_mode = ssl.CERT_NONE
         print("connecting...")
         self.sock = socket.socket()
-        self.sock.connect((ip, port))
+        self.conn = self.context.wrap_socket(self.sock, server_hostname=ip)
         print("connected!")
         self.app = None
         self.files = b''
@@ -30,13 +38,15 @@ class Client:
              with the server after connecting.
         """
         try:
+            self.conn.connect((self.ip, self.port))
             # start = input("enter start to start, exit to quit ")
             while True:
                 # if start == "start":
                 # self.sock.send(start.encode()) # sending start
                 # self.sock.send("ssrf user: Admin , password: pass1234!".encode()) # send the parm and req to the server
-                self.app = SampleApp()
-                self.app.mainloop()
+                if not self.app:
+                    self.app = SampleApp()
+                    self.app.mainloop()
                 result = self.app.get_result()
                 print(f"data: {result}")
                 if result:
@@ -45,13 +55,16 @@ class Client:
                     req = result[0]
                     file_path = result[2]
                     code_path = result[3]
+                    name = result[4]
                     msg = req + "\r\n" + result[1] + "\r\n" +str(self.file_length(file_path)) + "\r\n" + code_path
                     self.app = SampleApp()
                     if self.check_exists(code_path, file_path):
-                        self.sock.send(msg.encode())  # send the parm and req to the server
+                        self.conn.send(msg.encode())  # send the parm and req to the server
                         self.send_file(file_path) # send_file(file_path)
-                        result = self.result_dict[self.sock.recv(1024).decode()]
+                        result = self.result_dict[self.conn.recv(1024).decode()]
                         print(result)
+                        self.app.update_history(name, req, code_path, result)
+                        self.app.set_name(name)
                         if req == "sql":
                             if result:
                                 self.app.show_frame("SqlHacked")
@@ -66,6 +79,10 @@ class Client:
                     else:
                         # the file doesnt exists in the zip
                         self.app.show_frame("Error")
+                elif self.app.get_exit:
+                    print("exiting...")
+                    self.conn.send("exit".encode())
+                    break
 
             # if start == "exit":
             #     self.sock.send("exit".encode())
@@ -76,7 +93,8 @@ class Client:
         except Exception as err:
             print(err)
         finally:
-            self.sock.close()
+            self.conn.close()
+            print("exit.")
 
     def send_file(self, path):
         length = 0
@@ -85,7 +103,7 @@ class Client:
                 # read the contents of the file
                 data = zip.read(BUF)
                 while data:
-                    self.sock.send(data)  # send to server
+                    self.conn.send(data)  # send to server
                     data = zip.read(BUF)
                     # print(data)
             except UnicodeDecodeError:
