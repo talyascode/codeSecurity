@@ -2,9 +2,8 @@
 Author: Talya Gross
 CLIENT
 """
-# import
-from os.path import exists
 
+# import
 from gui import *
 import socket
 import ssl
@@ -12,18 +11,21 @@ BUF = 16000
 
 
 class Client:
-    """
-        build function of the Client class.
-    """
     def __init__(self, port, ip):
+        """
+            build function of the Client class.
+            create ssl layer and a socket
+        """
         self.ip = ip
         self.port = port
+
         # create the ssl context
         self.context = ssl.create_default_context()
         # allow self signed certificate
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_NONE
-        print("connecting...")
+
+        print("connecting to the server...")
         self.sock = socket.socket()
         self.conn = self.context.wrap_socket(self.sock, server_hostname=ip)
         print("connected!")
@@ -33,34 +35,32 @@ class Client:
 
     def start_client(self):
         """
-            the function receives input from the user and according to that it
-            starts the game or exits and closes the socket. here is all the communication
-             with the server after connecting.
+            the function starts a new connection with the server, creates a gui, receives input from the user
+            (through the gui), sends the server the information for the simulation and the file data in chunks,
+            gets the result of the simulation from the server, saves it to the history database and shows the user
+            the results
+            here is all the communication with the server after connecting.
         """
         try:
             self.conn.connect((self.ip, self.port))
-            # start = input("enter start to start, exit to quit ")
             while True:
-                # if start == "start":
-                # self.sock.send(start.encode()) # sending start
-                # self.sock.send("ssrf user: Admin , password: pass1234!".encode()) # send the parm and req to the server
                 if not self.app:
                     self.app = SampleApp()
                     self.app.mainloop()
                 result = self.app.get_result()
                 print(f"data: {result}")
                 if result:
-                    # 0- req , 1-param, 2- file path, 3- code path
-                    # send req and parm and files and code path(in chunks)
-                    req = result[0]
-                    file_path = result[2]
-                    code_path = result[3]
+                    # send req, param, file length and code path
+                    req = result[0]  # sql or ssrf
+                    param = result[1]  # parameter for the simulation or None
+                    file_path = result[2]  # the whole path to the project in the computer
+                    code_path = result[3]  # the specific path to the file in the project
                     name = result[4]
-                    msg = req + "\r\n" + result[1] + "\r\n" +str(self.file_length(file_path)) + "\r\n" + code_path
+                    msg = req + "\r\n" + param + "\r\n" +str(self.file_length(file_path)) + "\r\n" + code_path
                     self.app = SampleApp()
                     if self.check_exists(code_path, file_path):
-                        self.conn.send(msg.encode())  # send the parm and req to the server
-                        self.send_file(file_path) # send_file(file_path)
+                        self.conn.send(msg.encode())
+                        self.send_file(file_path)  # send file data in chunks
                         result = self.result_dict[self.conn.recv(1024).decode()]
                         print(result)
                         self.app.update_history(name, req, code_path, result)
@@ -83,11 +83,6 @@ class Client:
                     print("exiting...")
                     self.conn.send("exit".encode())
                     break
-
-            # if start == "exit":
-            #     self.sock.send("exit".encode())
-            #     print("exiting...")
-            #     break
         except socket.error as err:
             print('received socket exception - ' + str(err))
         except Exception as err:

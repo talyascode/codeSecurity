@@ -2,6 +2,7 @@
 Author: Talya Gross
 CodeSecurity SERVER
 """
+
 # import
 import os
 import ssl
@@ -75,21 +76,19 @@ class Server:
         try:
             while True:
                 print("listening to client:", client_address)
-                data = client_socket.recv(1024).decode() # rcv req and param and the length
+                data = client_socket.recv(1024).decode()
                 print(f"data:{data}")
                 if data == "exit":
                     print("exiting..")
                     break
                 elif data:
                     data = data.split("\r\n")
-                    req = data[0] # sql or ssrf
-                    parm = data[1] # none or what the server returns when the condition is true
+                    req = data[0]  # sql or ssrf
+                    parm = data[1]  # none or what the server returns when the condition is true
                     length = int(data[2])  # the length of the file
-                    code_path = data[3] # code path inside the project
+                    code_path = data[3]  # code path inside the project
                     data = b''
-                    print("check")
-                    # receiving the file data from the client
-                    while True:
+                    while True:  # receiving the file data from the client
                         chunk = client_socket.recv(BUF)
                         length -= len(chunk)
                         data += chunk
@@ -102,15 +101,13 @@ class Server:
                         f.write(data)
 
                     logging.info(f"req: {req}, parm: {parm}")
-                    # print(f"req: {req}, parm: {parm}, files:{data}")
                     result= ''
                     if req == "ssrf":
-                        result = self.check("pfp", code_path, FAKE_DATA, client_address, SSRF_URL)  # retruns True- (yes) or False(no)
+                        result = self.check(code_path, FAKE_DATA, client_address, SSRF_URL)  # retruns True- (yes) or False(no)
                     elif req == "sql":
-                        result = self.check("input", code_path, parm, client_address, SQL_INJECTION) # retruns True- (yes) or False(no)
+                        result = self.check(code_path, parm, client_address, SQL_INJECTION) # retruns True- (yes) or False(no)
                     self.port += 1  # changing the port so it wont be the same in the next docker
                     logging.info(f"result: {result}")
-                    # print(f"result: {result}")
                     client_socket.send(result.encode())
         except socket.error as err:
             print('received socket exception - ' + str(err))
@@ -120,15 +117,14 @@ class Server:
             client_socket.close()
             print("exit")
 
-    def check(self, url_path, code_path, condition, addr, data):
+    def check(self, code_path, condition, addr, data):
         """
-        send to the docker the code file, the request and the params
-        :param url_path: the url path
-        :param code_path:
-        :param condition:
-        :param addr:
-        :param data:
-        :return:
+        run a new docker and simulate an attack against the server in the docker
+        :param code_path: code path inside the given project
+        :param condition: condition to check the attack
+        :param addr: client address
+        :param data: data to send the server
+        :return: if the attack succeeded or not.
         """
         try:
             docker_name = str(addr[1])
@@ -137,22 +133,19 @@ class Server:
             os.system(f'docker build -t {docker_name} .')
 
             # Run the Docker container in the background
-            print(f"port:{self.port}")
             docker_cmd = f'docker run -p {self.port}:{self.port} -e FILE="{code_path}" -e PORT="{self.port}" {docker_name}'
             subprocess.Popen(docker_cmd, shell = True)
+            logging.info(f"opened docker:{docker_name} on port:{self.port}")
 
             time.sleep(5)  # wait for the docker to run before the curl command
 
             # simulate a sql injection/ ssrf attack
-            print(f"simulation...")
-            url = f'http://localhost:{self.port}/{url_path}'
-            print(f"url:{url}")
+            url = f'http://localhost:{self.port}/'
             curl_cmd = ['curl', '-X', 'POST', url, '-d', data]
             process = subprocess.Popen(curl_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
             answer = stdout.decode()
             logging.info(f"url: {url}, data:{data} , answer:{answer.strip()}, condition:{condition}")
-            # print(f"answer:{answer.strip()}, condition:{condition}")
             if condition == answer.strip():
                 # the attack succeeded!
                 return "yes"
@@ -161,7 +154,6 @@ class Server:
         except Exception as err:
             print(err)
         finally:
-            pass
             # removing the docker
             docker_id = subprocess.check_output(f'docker ps --filter "ancestor={addr[1]}" --format "{{{{.ID}}}}"').strip().decode()
             os.system(f"docker rm {docker_id} -f")
