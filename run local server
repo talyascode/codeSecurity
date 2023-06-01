@@ -2,3 +2,10 @@ cd C:/mini_servers/app
 
 docker build -t ssrf_local_server .
 docker run -it -p 1000:1000 -e FILE="./ssrf_local_sever.py" -e PORT="1000" ssrf_local_server
+
+
+\\\\\
+
+mini_servers/app/sql_server_fixed.py
+
+logged in successfully!
