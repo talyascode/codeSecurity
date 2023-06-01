@@ -2,7 +2,6 @@
 Author: Talya Gross
 CodeSecurity SERVER
 """
-
 # import
 import os
 import ssl
