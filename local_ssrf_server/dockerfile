@@ -7,10 +7,9 @@ ENV FILE=sql_server_fixed.py
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install requests
-RUN pip install CORS
 RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev
 
 COPY . .
 
-ENTRYPOINT python ${FILE} --database "sqlite:///data.db"
+ENTRYPOINT python ${FILE} ${PORT} --database "sqlite:///data.db"
 

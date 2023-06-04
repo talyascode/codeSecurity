@@ -7,5 +7,9 @@ docker run -it -p 1000:1000 -e FILE="./ssrf_local_sever.py" -e PORT="1000" ssrf_
 \\\\\
 
 mini_servers/app/sql_server_fixed.py
+mini_servers/app/sql_server.py
+
+mini_servers/app/ssrf_fixed.py
+mini_servers/app/ssrf_fixed.py
 
 logged in successfully!

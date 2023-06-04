@@ -14,17 +14,17 @@ import logging
 BUF = 16000
 FAKE_DATA = '{\n  "image": "user: Admin , password: pass1234!"\n}'  # the data we reacive if we mangaed to accces the local server
 SQL_INJECTION = "name=talya&pass=' or 1=1;--"  # the data that is sent to the server to try sql injection attack
-SSRF_URL = "url=http://172.17.0.5:1000/admin"  # the data that is sent to the server to try ssrf attack
+SSRF_URL = "url=http://172.17.0.2:1000/admin"  # the data that is sent to the server to try ssrf attack
 CERT_FILE = 'certificate.crt'  # the certificate file for SSL
 KEY_FILE = 'privateKey.key'  # the key file for SSL
 
 
 class Server:
-    """
-        build function of the Server class.
-        create ssl layer , create a socket, binding it and listen for clients
-    """
     def __init__(self, port):
+        """
+            build function of the Server class.
+            create ssl layer , create a socket, binding it and listen for clients
+        """
         logging.basicConfig(filename="fileDB.log", filemode="a", level=logging.DEBUG)
         # SSL
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -60,9 +60,6 @@ class Server:
             print('received socket exception - ' + str(err))
         finally:
             if self.all_clients:
-                client_socket = list(self.all_clients.values())[0]
-                client_socket.close()
-                client_socket = list(self.all_clients.values())[1]
                 client_socket.close()
 
     def handle_client(self, client_address):
@@ -75,8 +72,12 @@ class Server:
         try:
             while True:
                 print("listening to client:", client_address)
-                data = client_socket.recv(1024).decode()
-                print(f"data:{data}")
+
+                data = self.recv_data(client_socket)
+                if not data:  # if the receiving of the data didn't succeed
+                    client_socket.send("exit".encode())
+                    continue  # Go to the start of the while loop
+                client_socket.send("continue".encode())
                 if data == "exit":
                     print("exiting..")
                     break
@@ -94,6 +95,7 @@ class Server:
                         if length < BUF:
                             chunk = client_socket.recv(length)
                             data += chunk
+                            client_socket.send("exit".encode())
                             break
                     # Write the data to a zip file
                     with open('code_files.zip', 'wb') as f:
@@ -156,6 +158,24 @@ class Server:
             # removing the docker
             docker_id = subprocess.check_output(f'docker ps --filter "ancestor={addr[1]}" --format "{{{{.ID}}}}"').strip().decode()
             os.system(f"docker rm {docker_id} -f")
+
+    def recv_data(self, client_socket):
+        """
+        the function receives the data from the client according to the protocol
+        :return: the data from the client or False- the receiving of the data has failed
+        """
+        data_len = client_socket.recv(1024).decode()
+        if data_len == "exit":
+            return data_len
+        data_len = int(data_len)
+        received_bytes = b''
+        while len(received_bytes) < data_len:
+            chunk = client_socket.recv(data_len - len(received_bytes))
+            if not chunk:
+                return False
+            received_bytes += chunk
+
+        return received_bytes.decode()
 
 
 def main():

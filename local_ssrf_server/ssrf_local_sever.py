@@ -4,14 +4,10 @@ by Talya Gross
 http://localhost:2000/admin
 """
 import sys
-
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 
 FAKE_DATA = "user: Admin , password: pass1234!"
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:2000'])
-
 
 @app.route('/admin', methods=['GET'])
 def user_input():

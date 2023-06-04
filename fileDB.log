@@ -1,105 +1,11 @@
 INFO:root:req: ssrf, parm: none
-INFO:root:answer:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<title>404 Not Found</title>
-<h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>, condition:{
+INFO:root:opened docker:59010 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
   "image": "user: Admin , password: pass1234!"
 }
 INFO:root:result: no
 INFO:root:req: ssrf, parm: none
-INFO:root:answer:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<title>404 Not Found</title>
-<h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>, condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:{
-  "image": "user: Admin , password: pass1234!"
-}, condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: yes
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.2'], condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.2'], condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:{
-  "image": "user: Admin , password: pass1234!"
-}, condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: yes
-INFO:root:req: sql, parm: logged in successfully!
-INFO:root:answer:Error, name or password are not correct!, condition:logged in successfully!
-INFO:root:result: no
-INFO:root:req: sql, parm: logged in successfully!
-INFO:root:answer:logged in successfully!, condition:logged in successfully!
-INFO:root:result: yes
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.2'], condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:{
-  "image": "user: Admin , password: pass1234!"
-}, condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: yes
-INFO:root:req: ssrf, parm: none
-INFO:root:req: sql, parm: logged in successfully!
-INFO:root:answer:Error, name or password are not correct!, condition:logged in successfully!
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<title>404 Not Found</title>
-<h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>, condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: sql, parm: logged in successfully!
-INFO:root:answer:Error, name or password are not correct!, condition:logged in successfully!
-INFO:root:result: no
-INFO:root:req: sql, parm: logged in successfully!
-INFO:root:answer:logged in successfully!, condition:logged in successfully!
-INFO:root:result: yes
-INFO:root:req: ssrf, parm: none
-INFO:root:answer:HTTPConnectionPool(host='172.17.0.2', port=1000): Max retries exceeded with url: /admin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f8accbc6eb0>: Failed to establish a new connection: [Errno 111] Connection refused')), condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:url: http://localhost:1001/pfp, answer:HTTPConnectionPool(host='172.17.0.2', port=1000): Max retries exceeded with url: /admin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f655db11eb0>: Failed to establish a new connection: [Errno 111] Connection refused')), condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:url: http://localhost:1001/pfp, data:url=http://172.17.0.2:1000/admin , answer:HTTPConnectionPool(host='172.17.0.2', port=1000): Max retries exceeded with url: /admin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f4422fc9eb0>: Failed to establish a new connection: [Errno 111] Connection refused')), condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: no
-INFO:root:req: ssrf, parm: none
-INFO:root:url: http://localhost:1001/pfp, data:url=http://172.17.0.5:1000/admin , answer:{
-  "image": "user: Admin , password: pass1234!"
-}, condition:{
-  "image": "user: Admin , password: pass1234!"
-}
-INFO:root:result: yes
-INFO:root:req: ssrf, parm: none
-INFO:root:req: ssrf, parm: none
-INFO:root:result: None
-INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:59059 on port:1001
 INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:{
   "image": "user: Admin , password: pass1234!"
 }, condition:{
@@ -107,25 +13,29 @@ INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , a
 }
 INFO:root:result: yes
 INFO:root:req: ssrf, parm: none
-INFO:root:opened docker:58849 on port:1001
-INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:Error, name or password are not correct!, condition:{
+INFO:root:opened docker:59228 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
   "image": "user: Admin , password: pass1234!"
 }
 INFO:root:result: no
 INFO:root:req: ssrf, parm: none
-INFO:root:opened docker:58868 on port:1002
-INFO:root:url: http://localhost:1002/, data:url=http://172.17.0.5:1000/admin , answer:{
-  "image": "user: Admin , password: pass1234!"
-}, condition:{
+INFO:root:opened docker:56325 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
   "image": "user: Admin , password: pass1234!"
 }
-INFO:root:result: yes
+INFO:root:result: no
 INFO:root:req: sql, parm: logged in successfully!
-INFO:root:opened docker:54076 on port:1001
-INFO:root:url: http://localhost:1001/, data:name=talya&pass=' or 1=1;-- , answer:logged in successfully!, condition:logged in successfully!
-INFO:root:result: yes
+INFO:root:opened docker:56325 on port:1002
+INFO:root:url: http://localhost:1002/, data:name=talya&pass=' or 1=1;-- , answer:Error, name or password are not correct!, condition:logged in successfully!
+INFO:root:result: no
 INFO:root:req: ssrf, parm: none
-INFO:root:opened docker:54076 on port:1002
+INFO:root:opened docker:56689 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:56689 on port:1002
 INFO:root:url: http://localhost:1002/, data:url=http://172.17.0.5:1000/admin , answer:{
   "image": "user: Admin , password: pass1234!"
 }, condition:{
@@ -133,7 +43,7 @@ INFO:root:url: http://localhost:1002/, data:url=http://172.17.0.5:1000/admin , a
 }
 INFO:root:result: yes
 INFO:root:req: ssrf, parm: none
-INFO:root:opened docker:54188 on port:1001
+INFO:root:opened docker:56891 on port:1001
 INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
   "image": "user: Admin , password: pass1234!"
 }
