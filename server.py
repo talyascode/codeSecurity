@@ -2,6 +2,7 @@
 Author: Talya Gross
 CodeSecurity SERVER
 """
+
 # import
 import os
 import ssl
@@ -20,11 +21,11 @@ KEY_FILE = 'privateKey.key'  # the key file for SSL
 
 
 class Server:
+    """
+        build function of the Server class.
+        create ssl layer , create a socket, binding it and listen for clients
+    """
     def __init__(self, port):
-        """
-            build function of the Server class.
-            create ssl layer , create a socket, binding it and listen for clients
-        """
         logging.basicConfig(filename="fileDB.log", filemode="a", level=logging.DEBUG)
         # SSL
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -60,6 +61,9 @@ class Server:
             print('received socket exception - ' + str(err))
         finally:
             if self.all_clients:
+                client_socket = list(self.all_clients.values())[0]
+                client_socket.close()
+                client_socket = list(self.all_clients.values())[1]
                 client_socket.close()
 
     def handle_client(self, client_address):
@@ -72,12 +76,8 @@ class Server:
         try:
             while True:
                 print("listening to client:", client_address)
-
-                data = self.recv_data(client_socket)
-                if not data:  # if the receiving of the data didn't succeed
-                    client_socket.send("exit".encode())
-                    continue  # Go to the start of the while loop
-                client_socket.send("continue".encode())
+                data = client_socket.recv(1024).decode()
+                print(f"data:{data}")
                 if data == "exit":
                     print("exiting..")
                     break
@@ -95,18 +95,17 @@ class Server:
                         if length < BUF:
                             chunk = client_socket.recv(length)
                             data += chunk
-                            client_socket.send("exit".encode())
                             break
                     # Write the data to a zip file
                     with open('code_files.zip', 'wb') as f:
                         f.write(data)
 
                     logging.info(f"req: {req}, parm: {parm}")
-                    result= ''
+                    result = ''
                     if req == "ssrf":
                         result = self.check(code_path, FAKE_DATA, client_address, SSRF_URL)  # retruns True- (yes) or False(no)
                     elif req == "sql":
-                        result = self.check(code_path, parm, client_address, SQL_INJECTION) # retruns True- (yes) or False(no)
+                        result = self.check(code_path, parm, client_address, SQL_INJECTION)  # retruns True- (yes) or False(no)
                     self.port += 1  # changing the port so it wont be the same in the next docker
                     logging.info(f"result: {result}")
                     client_socket.send(result.encode())
@@ -135,7 +134,7 @@ class Server:
 
             # Run the Docker container in the background
             docker_cmd = f'docker run -p {self.port}:{self.port} -e FILE="{code_path}" -e PORT="{self.port}" {docker_name}'
-            subprocess.Popen(docker_cmd, shell = True)
+            subprocess.Popen(docker_cmd, shell=True)
             logging.info(f"opened docker:{docker_name} on port:{self.port}")
 
             time.sleep(5)  # wait for the docker to run before the curl command
@@ -158,24 +157,6 @@ class Server:
             # removing the docker
             docker_id = subprocess.check_output(f'docker ps --filter "ancestor={addr[1]}" --format "{{{{.ID}}}}"').strip().decode()
             os.system(f"docker rm {docker_id} -f")
-
-    def recv_data(self, client_socket):
-        """
-        the function receives the data from the client according to the protocol
-        :return: the data from the client or False- the receiving of the data has failed
-        """
-        data_len = client_socket.recv(1024).decode()
-        if data_len == "exit":
-            return data_len
-        data_len = int(data_len)
-        received_bytes = b''
-        while len(received_bytes) < data_len:
-            chunk = client_socket.recv(data_len - len(received_bytes))
-            if not chunk:
-                return False
-            received_bytes += chunk
-
-        return received_bytes.decode()
 
 
 def main():

@@ -5,10 +5,8 @@ CLIENT
 
 # import
 from gui import *
-import zipfile
 import socket
 import ssl
-
 BUF = 16000
 
 
@@ -61,15 +59,12 @@ class Client:
                     msg = req + "\r\n" + param + "\r\n" + str(self.file_length(file_path)) + "\r\n" + code_path
                     self.app = SampleApp()
                     if self.check_exists(code_path, file_path):
-                        self.conn.send(str(len(msg)).encode())  # send the length of the msg
-                        self.conn.send(msg.encode())
-                        server_msg = self.conn.recv(1024).decode()
-                        if server_msg == "exit":  # check if the server got all the msg
+                        flag = self.send_msg(msg)
+                        if flag:
                             break
                         self.send_file(file_path)  # send file data in chunks
                         result = self.result_dict[self.conn.recv(1024).decode()]
-                        if server_msg == "exit":  # check if the server got all the data
-                            break
+                        print(result)
                         self.app.update_history(name, req, code_path, result)
                         self.app.set_name(name)
                         if req == "sql":
@@ -103,13 +98,14 @@ class Client:
         the function sends 16000 bytes every time until all data is sent to the server
         param: path: the path to the file
         """
-        with open(path, "rb") as zip:
+        with open(path, "rb") as zip_file:
             try:
                 # read the contents of the file
-                data = zip.read(BUF)
+                data = zip_file.read(BUF)
                 while data:
                     self.conn.send(data)  # send to server
-                    data = zip.read(BUF)
+                    data = zip_file.read(BUF)
+                    # print(data)
             except UnicodeDecodeError:
                 print("Error: Unable to decode file")
 
@@ -118,10 +114,10 @@ class Client:
         :param path: the path to the file
         :return: the length of the file data
         """
-        with open(path, "rb") as zip:
+        with open(path, "rb") as zip_file:
             try:
                 # read the contents of the file
-                data = zip.read()
+                data = zip_file.read()
             except UnicodeDecodeError:
                 print("Error: Unable to decode file")
         return len(data)
@@ -132,12 +128,31 @@ class Client:
         :param file_path: the path to the file
         :return: if the specific code exists in the files
         """
+        import zipfile
+
         with zipfile.ZipFile(file_path, "r") as my_zip:
             for file_info in my_zip.infolist():
                 if file_info.filename == code_path:
                     print(f"{code_path} exists in the zip file.")
                     return True
         print(f"{code_path} does not exist in the zip file.")
+        return False
+
+    def send_msg(self, msg):
+        """
+        the function sends the msg and sure everything in the message is being sent to the server
+        :param msg: the message to the server
+        :return: True- break or False- continue
+        """
+        msg_bytes = msg.encode()
+        total_sent = 0
+
+        while total_sent < len(msg_bytes):
+            sent = self.conn.send(msg_bytes[total_sent:])
+            if sent == 0:
+                # exit
+                return True
+            total_sent += sent
         return False
 
 

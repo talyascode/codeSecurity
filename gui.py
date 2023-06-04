@@ -13,9 +13,9 @@ import datetime
 SCREEN = "700x500"  # the size of the screen
 SQL = "SELECT * FROM login WHERE name = '%s' AND password = '%s'"
 DATABASE = "data.db"
-vulnerability = {"ssrf": "ssrf", "sql":"sql injection"}
-result_dict = {True:"was", False: "wasn't"}
-EMPTY_MD5 = "d41d8cd98f00b204e9800998ecf8427e" # an empty string in md5
+vulnerability = {"ssrf": "ssrf", "sql": "sql injection"}
+result_dict = {True: "was", False: "wasn't"}
+EMPTY_MD5 = "d41d8cd98f00b204e9800998ecf8427e"  # an empty string in md5
 
 
 class SampleApp(tk.Tk):
@@ -82,8 +82,8 @@ class SampleApp(tk.Tk):
         :param name: the name of the user
         """
         self.name = name
-        self.frames["StartPage"].update_name_label(name)
-        self.frames["History"].update_name_label(name)
+        self.frames["StartPage"].update_name_label()
+        self.frames["History"].update_name_label()
 
     def history(self):
         """
@@ -99,11 +99,11 @@ class SampleApp(tk.Tk):
         frame = self.frames[page_name]
         frame.tkraise()
 
-    def set_input(self, input):
+    def set_input(self, user_input):
         """
         sets the input- the data from the user
         """
-        self.input= input
+        self.input = user_input
 
     def set_req(self, req):
         """
@@ -237,7 +237,7 @@ class StartPage(tk.Frame):
                             command=lambda: controller.history())
         history.pack(pady=90)
 
-    def update_name_label(self, name):
+    def update_name_label(self):
         """
         Updates the name label with the provided name.
         param: name: the name of the user
@@ -268,7 +268,7 @@ class History(tk.Frame):
                            command=lambda: self.controller.show_frame("StartPage"))  # home button
         button.pack(pady=50)
 
-    def update_name_label(self, name):
+    def update_name_label(self):
         """
         Updates the name label with the provided name.
         param: name: the name of the user
@@ -294,7 +294,6 @@ class History(tk.Frame):
             print(f"sql error:{err}")
         finally:
             if conn:
-                #conn.commit()
                 conn.close()
         for result in results:
             new_results += f"date: {result[2]} \n {result[1]}\n"
@@ -319,7 +318,7 @@ class PageOne(tk.Frame):
                          font=controller.text_font)
         title.pack(side="top", fill="x")
 
-        self.condition = tk.Entry(self) # input
+        self.condition = tk.Entry(self)  # input
         self.condition.pack()
 
         title = tk.Label(self, text="Enter the path to the server file:",
@@ -330,14 +329,14 @@ class PageOne(tk.Frame):
         self.path.pack()
 
         upload_button = tk.Button(self, text="Upload", font=controller.buttons_font, width=14, height=1,  bg="#D3E1F3",
-                                  command=controller.upload_file) # upload code files
+                                  command=controller.upload_file)  # upload code files
         upload_button.pack(pady=10)
 
         submit_button = tk.Button(self, text="Submit", font=controller.buttons_font, width=20, height=2,  bg="#D3E1F3",
-                                  command=self.submit) # submit button
+                                  command=self.submit)  # submit button
         submit_button.pack(pady=20)
 
-        self.image = tk.PhotoImage(file='home.png') # store the PhotoImage object in an instance variable
+        self.image = tk.PhotoImage(file='home.png')  # store the PhotoImage object in an instance variable
         button = tk.Button(self, image=self.image,
                            command=lambda: controller.show_frame("StartPage"))  # home button
         button.pack(pady=50)
@@ -413,7 +412,8 @@ class SqlHacked(tk.Frame):
         self.controller = controller
         label = tk.Label(self, text="It seems like your code is vulnerable for sql injection:( \n, here are some tips to fix it:\n - use parameterized queries, like this:"
                                     '\n cursor.execute("SELECT * FROM login WHERE name = ''{0}'' \n AND password = ''{1}'''".format(name, password))"
-                         '\n The parameters are passed as an input to the query method. \n Internally, the query method ensures that the input parameters are \n interpreted literally and not as separate SQL statements.' , font=controller.text_font)
+                         '\n The parameters are passed as an input to the query method. \n Internally, the query method ensures that the input parameters are \n interpreted literally and not as separate SQL statements.',
+                         font=controller.text_font)
         label.pack(side="top", fill="x", pady=10)
 
         self.image = tk.PhotoImage(file='home.png')  # store the PhotoImage object in an instance variable
