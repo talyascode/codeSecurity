@@ -105,7 +105,6 @@ class Client:
                 while data:
                     self.conn.send(data)  # send to server
                     data = zip_file.read(BUF)
-                    # print(data)
             except UnicodeDecodeError:
                 print("Error: Unable to decode file")
 
